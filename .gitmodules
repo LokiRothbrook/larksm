@@ -1,0 +1,3 @@
+[submodule "lib/liblarksm-common"]
+	path = lib/liblarksm-common
+	url = https://github.com/LokiRothbrook/liblarksm-common.git
