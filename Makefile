@@ -12,11 +12,14 @@ CXX = g++
 # define any compile-time flags
 CXXFLAGS := -std=c++17 -Wall -Wextra -g
 
-# define library paths in addition to /usr/lib
-LFLAGS := 
+# define library build directories
+LARKSM_DIR := lib/liblarksm-common/build
+
+# define library names to use
+LFLAGS := -L$(LARKSM_DIR) -llarksm-common
 
 # define rPath
-RPATH := -Wl,-rpath,../lib,-rpath,./lib/
+RPATH := -Wl,-rpath,./$(LARKSM_DIR),-rpath,../$(LARKSM_DIR)
 
 # define build directory
 BUILD_DIR := build
@@ -29,6 +32,9 @@ OBJ_DIR := obj
 
 # define include directory
 INCLUDE_DIR := include
+
+# define library include directories
+LIB_INCLUDES := -I./lib/liblarksm-common/include
 
 # define library directory
 LIB_DIR := lib
@@ -79,16 +85,18 @@ $(OBJ_DIR):
 	$(MD) $(OBJ_DIR)
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET_PATH) $(OBJS) $(LFLAGS) $(LIBS) $(RPATH)
+	cd lib/liblarksm-common && $(MAKE)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LIB_INCLUDES) -o $(TARGET_PATH) $(OBJS) $(LFLAGS) $(LIBS) $(RPATH)
 
 # include all .d files
 -include $(DEPS)
 
 $(OBJ_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -MMD -MP $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LIB_INCLUDES) -c -MMD -MP $< -o $@
 
 .PHONY: clean
 clean:
 	$(RM) $(BUILD_DIR)
 	$(RM) $(OBJ_DIR)
+	cd lib/liblarksm-common && $(MAKE) clean
